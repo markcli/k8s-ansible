@@ -1,0 +1,8 @@
+---
+- name: Deploy a fully functional kubernetes cluster
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  roles:
+    - sysinit
+    - k8s
