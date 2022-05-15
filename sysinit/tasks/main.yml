@@ -32,18 +32,27 @@
     state: stopped
     enabled: no
 
-- name: Copy docker-ce repo to all hosts
-  copy:
-    src: docker-ce.repo
-    dest: /etc/yum.repos.d/
-    force: yes
-
-- name: Install docker on all hosts
+- name: Install required packages
   yum:
     name: "{{ item }}"
     state: latest
-  loop:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-compose-plugin
+  loop: "{{ packages }}"
+
+  #- name: Copy required pkgs to all hosts
+  #  copy:
+  #    src: "{{ pkg_src_dir }}"/{{ item }}
+  #    dest: /tmp
+  #  loop: "{{ pkgs_src }}"
+  #
+  #- name: Unarchive crio pkg
+  #  unarchive:
+  #    src: /tmp/{{ crio-pkg }}
+  #    dest: /tmp
+  #    remote_src: yes
+  #
+  #- name: Install crio
+  #  shell: /tmp/cri-o/install
+  #
+  #- name: Copy k8s pkg to all hosts
+  #  copy:
+  #    src: "{{ pkg-dir }}/

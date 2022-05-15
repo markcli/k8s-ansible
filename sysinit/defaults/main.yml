@@ -1,2 +1,17 @@
 ---
 # defaults file for sysinit
+packages:
+  - podman
+  - conntrack-tools
+  - socat
+  - iproute-tc
+
+crio-pkg: cri-o.amd64.v1.24.0.tar.xz
+
+pkg_src_dir: /tmp/k8s-pkg
+
+pkg_src:
+  - cri-o.amd64.v1.24.0.tar.xz
+  - kubeadm.tar.xz
+  - kubectl.tar.xz
+  - kubelet.tar.xz

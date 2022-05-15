@@ -1,0 +1,9 @@
+# defaults file for pull-pkgs
+container_name: k8s-pkg
+pkg_dir: /tmp/k8s-pkg
+image_name: docker.io/marktoday/k8s-pkg:v1.24.0
+packages:
+  - cri-o.amd64.v1.24.0.tar.xz
+  - kubeadm.tar.xz
+  - kubectl.tar.xz
+  - kubelet.tar.xz

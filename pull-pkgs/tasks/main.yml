@@ -1,0 +1,28 @@
+---
+# tasks file for pull-pkgs
+- name: mkdir  pkg-dir
+  file:
+    path: "{{ pkg_dir }}"
+    state: directory
+
+- name: Install podman on localhost
+  yum:
+    name: podman
+    state: latest
+
+- name: Pull the pkg container image
+  podman_image:
+    name: "{{ image_name }}"
+
+- name: Run pkg container
+  shell: podman run --name "{{ container_name }}" -d "{{ image_name }}"
+
+- name: Copy all the packages from pkg container
+  shell: podman cp "{{ container_name }}":/root/{{ item }} "{{ pkg_dir }}"
+  loop: "{{ packages }}"
+
+- name: Stop {{ container_name }}
+  shell: podman kill "{{ container_name }}"
+
+- name: Remove {{ container_name }}
+  shell: podman rm "{{ container_name }}" -f 
