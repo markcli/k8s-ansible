@@ -51,7 +51,19 @@
     remote_src: yes
 
 - name: Install crio
-  shell: /tmp/cri-o/install
+  shell: ./install
+  args:
+    chdir: /tmp/cri-o
+
+- name: Daemon reload
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start cri-o service
+  service:
+    name: crio
+    state: started
+    enabled: yes
 
 - name: Unarchive kubeadm kubectl kubelet
   unarchive:
@@ -62,3 +74,28 @@
     - kubeadm.tar.xz
     - kubectl.tar.xz
     - kubelet.tar.xz
+
+- name: Install kubelet.service
+  copy:
+    src: kubelet.service
+    dest: /usr/lib/systemd/system
+
+- name: Ensure kubelet.d dir exists
+  file:
+    path: /usr/lib/systemd/system/kubelet.d/
+    state: directory
+
+- name: Install kubeadm.conf
+  copy:
+    src: 10-kubeadm.conf
+    dest: /usr/lib/systemd/system/kubelet.d/
+
+- name: Reload daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and start kubelet service
+  service:
+    name: kubelet
+    state: started
+    enabled: yes
