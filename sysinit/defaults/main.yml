@@ -5,10 +5,12 @@ packages:
   - conntrack-tools
   - socat
   - iproute-tc
+  - vim 
+  - bash-completion
 
-crio-pkg: cri-o.amd64.v1.24.0.tar.xz
+crio_pkg: cri-o.amd64.v1.24.0.tar.xz
 
-pkg_src_dir: /tmp/k8s-pkg
+pkg_src_dir: /tmp/k8s-pkg/
 
 pkg_src:
   - cri-o.amd64.v1.24.0.tar.xz

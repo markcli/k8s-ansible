@@ -38,21 +38,27 @@
     state: latest
   loop: "{{ packages }}"
 
-  #- name: Copy required pkgs to all hosts
-  #  copy:
-  #    src: "{{ pkg_src_dir }}"/{{ item }}
-  #    dest: /tmp
-  #  loop: "{{ pkgs_src }}"
-  #
-  #- name: Unarchive crio pkg
-  #  unarchive:
-  #    src: /tmp/{{ crio-pkg }}
-  #    dest: /tmp
-  #    remote_src: yes
-  #
-  #- name: Install crio
-  #  shell: /tmp/cri-o/install
-  #
-  #- name: Copy k8s pkg to all hosts
-  #  copy:
-  #    src: "{{ pkg-dir }}/
+- name: Copy deps pkgs to all hosts
+  copy:
+    src: /tmp/{{ item }}
+    dest: /tmp
+  loop: "{{ pkg_src }}"
+
+- name: Unarchive crio pkg
+  unarchive:
+    src: /tmp/{{ crio_pkg }}
+    dest: /tmp
+    remote_src: yes
+
+- name: Install crio
+  shell: /tmp/cri-o/install
+
+- name: Unarchive kubeadm kubectl kubelet
+  unarchive:
+    src: /tmp/{{ item }}
+    dest: /usr/bin
+    remote_src: yes
+  loop:
+    - kubeadm.tar.xz
+    - kubectl.tar.xz
+    - kubelet.tar.xz

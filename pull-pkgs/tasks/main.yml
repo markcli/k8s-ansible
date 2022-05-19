@@ -21,8 +21,8 @@
   shell: podman cp "{{ container_name }}":/root/{{ item }} "{{ pkg_dir }}"
   loop: "{{ packages }}"
 
-- name: Stop {{ container_name }}
+- name: Kill {{ container_name }} container
   shell: podman kill "{{ container_name }}"
 
-- name: Remove {{ container_name }}
+- name: Remove {{ container_name }} container
   shell: podman rm "{{ container_name }}" -f 
