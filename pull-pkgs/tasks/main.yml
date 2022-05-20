@@ -14,15 +14,15 @@
   podman_image:
     name: "{{ image_name }}"
 
+- name: Kill {{ container_name }} container
+  shell: podman kill "{{ container_name }}"
+
+- name: Remove {{ container_name }} container
+  shell: podman rm "{{ container_name }}" -f 
+
 - name: Run pkg container
   shell: podman run --name "{{ container_name }}" -d "{{ image_name }}"
 
 - name: Copy all the packages from pkg container
   shell: podman cp "{{ container_name }}":/root/{{ item }} "{{ pkg_dir }}"
   loop: "{{ packages }}"
-
-- name: Kill {{ container_name }} container
-  shell: podman kill "{{ container_name }}"
-
-- name: Remove {{ container_name }} container
-  shell: podman rm "{{ container_name }}" -f 

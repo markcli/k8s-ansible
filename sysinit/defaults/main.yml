@@ -8,12 +8,13 @@ packages:
   - vim 
   - bash-completion
 
-crio_pkg: cri-o.amd64.v1.24.0.tar.xz
+crio_pkg: cri-o.amd64.v1.24.0.tar.gz
 
 pkg_src_dir: /tmp/k8s-pkg/
 
 pkg_src:
-  - cri-o.amd64.v1.24.0.tar.xz
+  - cni-plugins-linux-amd64-v0.8.2.tgz
+  - cri-o.amd64.v1.24.0.tar.gz
   - kubeadm.tar.xz
   - kubectl.tar.xz
   - kubelet.tar.xz

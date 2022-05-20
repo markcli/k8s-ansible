@@ -3,7 +3,8 @@ container_name: k8s-pkg
 pkg_dir: /tmp/
 image_name: docker.io/marktoday/k8s-pkg:v1.24.0
 packages:
-  - cri-o.amd64.v1.24.0.tar.xz
+  - cni-plugins-linux-amd64-v0.8.2.tgz
+  - cri-o.amd64.v1.24.0.tar.gz
   - kubeadm.tar.xz
   - kubectl.tar.xz
   - kubelet.tar.xz
