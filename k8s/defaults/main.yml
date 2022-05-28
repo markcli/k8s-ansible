@@ -1,2 +1,3 @@
 ---
 # defaults file for k8s
+my_registry: docker.io/marktoday

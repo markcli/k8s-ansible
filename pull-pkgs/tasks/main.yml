@@ -14,11 +14,16 @@
   podman_image:
     name: "{{ image_name }}"
 
-- name: Kill {{ container_name }} container
-  shell: podman kill "{{ container_name }}"
+- name: Check if {{ container_name }} container already exists
+  shell: podman ps -a | grep {{ container_name }} | wc -l
+  register: ctr_count
+
+- debug:
+    var: ctr_count.stdout
 
 - name: Remove {{ container_name }} container
   shell: podman rm "{{ container_name }}" -f 
+  when: ctr_count.stdout == "1"
 
 - name: Run pkg container
   shell: podman run --name "{{ container_name }}" -d "{{ image_name }}"

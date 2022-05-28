@@ -1,2 +1,8 @@
 ---
 # tasks file for k8s
+- name: Pull kubernetes container images
+  shell: kubeadm config images pull --image-repository {{ my_registry }}
+  register: kubeadm_image_pull
+
+- debug: 
+    var: kubeadm_image_pull.stdout
