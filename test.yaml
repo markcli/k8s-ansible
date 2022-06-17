@@ -1,0 +1,26 @@
+---
+- name: test variable
+  hosts: master[0]
+  tasks:
+    - name: Print join command
+      shell: grep 'kubeadm join' /tmp/kubeadm-init.txt
+      register: kubeadm_join
+
+      #    - debug:
+      #        var: kubeadm_join
+      #
+      #    - name: Copy join command to hosts
+      #      copy:
+      #        content: "{{ kubeadm_join['stdout'] }}"
+      #        dest: /tmp/kubeadm_join.sh
+      #    - name: Fetch join command
+      #      fetch:
+      #        src: /tmp/kubeadm-init.txt
+      #        dest: /tmp/
+      #        flat: yes
+    - name: test
+      shell: echo {{ hosts[master][1] }}
+      register: test
+
+    - debug:
+        var: test

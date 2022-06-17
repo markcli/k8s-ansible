@@ -1,15 +1,67 @@
 ---
 # tasks file for k8s
 - name: Pull kubernetes container images
-  shell: kubeadm config images pull --image-repository {{ my_registry }} --kubernetes-version=1.24.0
+  shell: kubeadm config images pull --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }}
   register: kubeadm_image_pull
+  tags: master0
 
 - debug: 
-    var: kubeadm_image_pull
+    var: kubeadm_image_pull.stdout_lines
+  tags: master0
+
+- name: Install hosts on first master
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ansible_facts['ansible_default_ipv4']['address'] }} {{ control_plane_endpoint }}"
+    state: present
+  tags: master0
 
 - name: Init first master
-  shell: kubeadm init --node-name=192.168.56.111 --upload-certs --image-repository=docker.io/marktoday --kubernetes-version=1.24.0 --pod-network-cidr=10.11.0.0/16 --apiserver-advertise-address=192.168.56.111 | tee /tmp/kubeadm-out.txt
+  shell: kubeadm init --node-name {{ ansible_facts['ansible_default_ipv4']['address'] }}  --upload-certs --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }} --pod-network-cidr {{ pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['ansible_default_ipv4']['address'] }} --control-plane-endpoint {{ control_plane_endpoint }} | tee /tmp/kubeadm-init.txt
   register: kubeadm_init
+  tags: master0
 
 - debug:
     var: kubeadm_init
+  tags: master0
+
+- name: Generate join command for other masters
+  shell: grep 'kubeadm join' /tmp/kubeadm-init.txt -A 3 | head -3 > /tmp/join_master.sh
+  tags: master0
+
+- name: Generate join command for workers
+  shell: grep 'kubeadm join' /tmp/kubeadm-init.txt -A 3 | tail -2 > /tmp/join_worker.sh
+  tags: master0
+
+- name: Fetch join command file
+  fetch:
+    src: "{{ item }}"
+    dest: /tmp/
+    flat: yes
+  loop: 
+    - /tmp/join_master.sh
+    - /tmp/join_worker.sh
+  tags: master0
+
+- name: Synchronize hosts file 
+  synchronize:
+    src: /etc/hosts
+    dest: /etc/hosts
+  delegate_to: master[0]
+  tags:
+    - join_masters
+    - join_workers
+
+- name: Install join file to other control-plane machines
+  copy:
+    src: /tmp/join_master.sh
+    dest: /tmp/
+    force: yes
+  tags: join-masters
+
+- name: Install join file to worker nodes
+  copy:
+    src: /tmp/join_worker.sh
+    dest: /tmp/
+    force: yes
+  tags: join-workers

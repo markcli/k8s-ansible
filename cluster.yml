@@ -16,5 +16,8 @@
   hosts: master[0]
   remote_user: root
   gather_facts: no
-  roles:
-    - k8s
+  tasks:
+
+    - import_role:
+        name: k8s
+      tags: master0
