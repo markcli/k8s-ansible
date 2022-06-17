@@ -29,6 +29,6 @@
 - name: Join woker nodes to the cluster
   hosts: worker
   tasks:
-  - import_role: 
+  - include_role: 
       name: k8s
     tags: join_worker
