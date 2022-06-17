@@ -43,11 +43,18 @@
     - /tmp/join_worker.sh
   tags: master0
 
-- name: Install hosts file 
-  synchronize:
+- name: Fetch hosts file 
+  fetch:
     src: /etc/hosts
+    dest: /tmp/
+    flat: yes
+  tags: master0
+
+- name: Install hosts file
+  copy:
+    src: /tmp/hosts
     dest: /etc/hosts
-  delegate_to: master0
+    force: yes
   tags:
     - join_master
     - join_worker
