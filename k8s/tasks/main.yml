@@ -12,12 +12,12 @@
 - name: Install hosts on first master
   lineinfile:
     path: /etc/hosts
-    line: "{{ ansible_facts['ansible_default_ipv4']['address'] }} {{ control_plane_endpoint }}"
+    line: "{{ ansible_facts['default_ipv4']['address'] }} {{ control_plane_endpoint }}"
     state: present
   tags: master0
 
 - name: Init first master
-  shell: kubeadm init --node-name {{ ansible_facts['ansible_default_ipv4']['address'] }}  --upload-certs --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }} --pod-network-cidr {{ pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['ansible_default_ipv4']['address'] }} --control-plane-endpoint {{ control_plane_endpoint }} | tee /tmp/kubeadm-init.txt
+  shell: kubeadm init --node-name {{ ansible_facts['default_ipv4']['address'] }}  --upload-certs --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }} --pod-network-cidr {{ pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ control_plane_endpoint }} | tee /tmp/kubeadm-init.txt
   register: kubeadm_init
   tags: master0
 
@@ -43,25 +43,66 @@
     - /tmp/join_worker.sh
   tags: master0
 
-- name: Synchronize hosts file 
+- name: Install hosts file 
   synchronize:
     src: /etc/hosts
     dest: /etc/hosts
-  delegate_to: master[0]
+  delegate_to: master0
   tags:
-    - join_masters
-    - join_workers
+    - join_master
+    - join_worker
 
 - name: Install join file to other control-plane machines
   copy:
     src: /tmp/join_master.sh
     dest: /tmp/
     force: yes
-  tags: join-masters
+  tags: join_master
+
+- name: Join other control-plane machines to the cluster
+  shell: bash /tmp/join_master.sh | tee /tmp/join_master.log
+  register: join_master
+  tags: join_master
+
+- debug:
+    var: join_master
+  tags: join_master
 
 - name: Install join file to worker nodes
   copy:
     src: /tmp/join_worker.sh
     dest: /tmp/
     force: yes
-  tags: join-workers
+  tags: join_worker
+
+- name: Join worker nodes to the cluster
+  shell: bash /tmp/join_worker.sh | tee /tmp/join_worker.log
+  register: join_worker
+  tags: join_worker
+
+- debug:
+    var: join_worker
+  tags: join_worker
+
+- name: Install calico crd yaml file
+  copy:
+    src: tigera-operator.yaml
+    dest: /tmp/
+    force: yes
+  tags: master0
+
+- name: Install calico cr yaml file
+  template:
+    src: custom-resources.j2
+    dest: /tmp/custom-resources.yaml
+    force: yes
+  tags: master0
+
+- name: Install calico
+  shell: kubectl apply -f /tmp/tigera-operator.yaml -f /tmp/custom-resources.yaml
+  register: install_calico
+  tags: master0
+
+- debug:
+    var: install_calico
+  tags: master0

@@ -13,7 +13,7 @@
     - sysinit
 
 - name: Deploy a fully functional kubernetes cluster
-  hosts: master[0]
+  hosts: master0
   remote_user: root
   gather_facts: no
   tasks:
