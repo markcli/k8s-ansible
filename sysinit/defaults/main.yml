@@ -17,3 +17,5 @@ pkg_src:
   - kubeadm.tar.xz
   - kubectl.tar.xz
   - kubelet.tar.xz
+
+kubelet_svc_dir: /usr/lib/systemd/system/kubelet.service.d

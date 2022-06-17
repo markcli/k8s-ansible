@@ -82,13 +82,13 @@
 
 - name: Ensure kubelet.d dir exists
   file:
-    path: /usr/lib/systemd/system/kubelet.service.d/
+    path: "{{ kubelet_svc_dir }}"
     state: directory
 
 - name: Install kubeadm.conf
   copy:
     src: 10-kubeadm.conf
-    dest: /usr/lib/systemd/system/kubelet.service.d/
+    dest: "{{ kubelet_svc_dir }}"
 
 - name: Reload daemon
   systemd:
