@@ -5,11 +5,6 @@
     name: br_netfilter
     state: present
 
-- name: Setup netfilter
-  modprobe:
-    name: br_netfilter
-    state: present
-
 - name: Setup kernel param
   sysctl:
     name: "{{ item }}"
@@ -87,20 +82,20 @@
 
 - name: Ensure kubelet.d dir exists
   file:
-    path: /usr/lib/systemd/system/kubelet.d/
+    path: /usr/lib/systemd/system/kubelet.service.d/
     state: directory
 
 - name: Install kubeadm.conf
   copy:
     src: 10-kubeadm.conf
-    dest: /usr/lib/systemd/system/kubelet.d/
+    dest: /usr/lib/systemd/system/kubelet.service.d/
 
 - name: Reload daemon
   systemd:
     daemon_reload: yes
 
-- name: Enable and start kubelet service
-  service:
-    name: kubelet
-    state: started
-    enabled: yes
+    #- name: Enable and start kubelet service
+    #  service:
+    #    name: kubelet
+    #    state: started
+    #    enabled: yes

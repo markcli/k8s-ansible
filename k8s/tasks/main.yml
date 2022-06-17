@@ -1,8 +1,15 @@
 ---
 # tasks file for k8s
 - name: Pull kubernetes container images
-  shell: kubeadm config images pull --image-repository {{ my_registry }}
+  shell: kubeadm config images pull --image-repository {{ my_registry }} --kubernetes-version=1.24.0
   register: kubeadm_image_pull
 
 - debug: 
-    var: kubeadm_image_pull.stdout
+    var: kubeadm_image_pull
+
+- name: Init first master
+  shell: kubeadm init --node-name=192.168.56.111 --upload-certs --image-repository=docker.io/marktoday --kubernetes-version=1.24.0 --pod-network-cidr=10.11.0.0/16 --apiserver-advertise-address=192.168.56.111 | tee /tmp/kubeadm-out.txt
+  register: kubeadm_init
+
+- debug:
+    var: kubeadm_init
