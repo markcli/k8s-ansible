@@ -6,12 +6,25 @@
     dest: /etc/hostname
     force: yes
 
+- name: Install hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    force: yes
+
 - name: Make sure br_netfilter module is loaded after reboot
   copy:
     content: br_netfilter
     dest: /etc/modules-load.d/k8s.conf
     force: yes
 
+- name: Disable SELINUX
+  selinux:
+    state: disabled
+
+- name: Reboot machines
+  reboot: 
+    
 - name: Setup kernel param
   sysctl:
     name: "{{ item }}"
@@ -24,13 +37,6 @@
     - net.bridge.bridge-nf-call-iptables
     - net.ipv4.ip_forward
 
-- name: Disable SELINUX
-  selinux:
-    state: disabled
-
-- name: Reboot machines
-  reboot: 
-    
 - name: Disable firewall
   service:
     name: firewalld
