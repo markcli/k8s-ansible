@@ -9,17 +9,18 @@
     var: kubeadm_image_pull.stdout_lines
   tags: master0
 
-- name: Install hosts on first master
-  lineinfile:
-    path: /etc/hosts
-    line: "{{ ansible_facts['default_ipv4']['address'] }} {{ control_plane_endpoint }}"
-    state: present
-  tags: master0
-
 - name: Init first master
-  shell: kubeadm init --node-name {{ ansible_facts['default_ipv4']['address'] }}  --upload-certs --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }} --pod-network-cidr {{ pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ control_plane_endpoint }} | tee /tmp/kubeadm-init.txt
+  shell: kubeadm init --upload-certs --image-repository {{ my_registry }} --kubernetes-version {{ kubernetes_version }} --pod-network-cidr {{ pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ ansible_facts['hostname'] }} | tee /tmp/kubeadm-init.txt
   register: kubeadm_init
   tags: master0
+
+- name: Make kubeconfig dir
+  file: 
+    path: "{{ kubeconfig_dir }}"
+    state: directory
+
+- name: Install kubeconfig file
+  shell: cp -f {{ kubeadmin_file }} {{ kubeconfig_dir }}/config
 
 - debug:
     var: kubeadm_init
@@ -69,10 +70,10 @@
 - name: Join other control-plane machines to the cluster
   shell: bash /tmp/join_master.sh | tee /tmp/join_master.log
   register: join_master
-  tags: join_master
+  tags: join-master
 
 - debug:
-    var: join_master
+    var: join-master
   tags: join_master
 
 - name: Install join file to worker nodes

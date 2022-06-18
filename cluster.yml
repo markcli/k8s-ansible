@@ -8,7 +8,7 @@
 
 - name: Initialize all target hosts
   hosts: all
-  gather_facts: no
+  gather_facts: yes
   roles:
     - sysinit
 

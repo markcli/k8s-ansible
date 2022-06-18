@@ -1,9 +1,16 @@
 ---
 # tasks file for sysinit
-- name: Make sure br_netfilter module is loaded
-  modprobe:
-    name: br_netfilter
-    state: present
+- name: Set up host name
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+    force: yes
+
+- name: Make sure br_netfilter module is loaded after reboot
+  copy:
+    content: br_netfilter
+    dest: /etc/modules-load.d/k8s.conf
+    force: yes
 
 - name: Setup kernel param
   sysctl:
@@ -21,6 +28,9 @@
   selinux:
     state: disabled
 
+- name: Reboot machines
+  reboot: 
+    
 - name: Disable firewall
   service:
     name: firewalld
@@ -38,11 +48,6 @@
     src: /tmp/{{ item }}
     dest: /tmp
   loop: "{{ pkg_src }}"
-
-  #- name: Unarchive cni package
-  #  unarchive:
-  #    src: /tmp/{{ cni_pkg }}
-  #    dest: /opt
 
 - name: Unarchive crio pkg
   unarchive:
@@ -94,8 +99,8 @@
   systemd:
     daemon_reload: yes
 
-    #- name: Enable and start kubelet service
-    #  service:
-    #    name: kubelet
-    #    state: started
-    #    enabled: yes
+- name: Enable and start kubelet service
+  service:
+    name: kubelet
+    state: started
+    enabled: yes
