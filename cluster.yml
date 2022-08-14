@@ -4,31 +4,4 @@
   connection: local
   gather_facts: no
   roles:
-    - pull-pkgs
-
-- name: Initialize all target hosts
-  hosts: all
-  gather_facts: yes
-  roles:
-    - sysinit
-
-- name: Initialize first master
-  hosts: master0
-  tasks:
-  - include_role: 
-      name: k8s
-    tags: master0
-
-- name: Join other control-plane machines to the cluster
-  hosts: othermasters
-  tasks:
-  - include_role: 
-      name: k8s
-    tags: join_master
-
-- name: Join woker nodes to the cluster
-  hosts: worker
-  tasks:
-  - include_role: 
-      name: k8s
-    tags: join_worker
+    - install_pkgs
