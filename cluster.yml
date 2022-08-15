@@ -1,7 +1,5 @@
 ---
 - name: Pull required packages
-  hosts: localhost
-  connection: local
-  gather_facts: no
+  hosts: all
   roles:
-    - install_pkgs
+    - sysinit

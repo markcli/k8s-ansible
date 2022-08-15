@@ -1,6 +1,0 @@
-# defaults file for pull-pkgs
-install_pkgs_container_name: k8s-pkg
-install_pkgs_temp_dir: /tmp/k8s-pkgs
-install_pkgs_image_name: docker.io/marktoday/k8s-pkg
-install_pkgs_image_tag: v1.24.3
-install_pkg_k8s_cmd: k8scmd.tar.xz

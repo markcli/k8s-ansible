@@ -1,21 +1,6 @@
----
-# defaults file for sysinit
-packages:
-  - podman
-  - conntrack-tools
-  - socat
-  - iproute-tc
-  - vim 
-  - bash-completion
-
-crio_pkg: cri-o.amd64.v1.24.0.tar.gz
-
-pkg_src_dir: /tmp/k8s-pkg/
-
-pkg_src:
-  - cri-o.amd64.v1.24.0.tar.gz
-  - kubeadm.tar.xz
-  - kubectl.tar.xz
-  - kubelet.tar.xz
-
-kubelet_svc_dir: /usr/lib/systemd/system/kubelet.service.d
+# defaults file for pull-pkgs
+sysinit_container_name: k8s-pkg
+sysinit_temp_dir: /tmp/k8s-pkgs
+sysinit_image_name: docker.io/marktoday/k8s-pkg
+sysinit_image_tag: v1.24.3@sha256:06a8634a7a085970785c3d194ae1b6831ac55d541af19cee67cd9334225a567a
+sysinit_k8s_cmd: k8scmd.tar.xz

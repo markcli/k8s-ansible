@@ -22,16 +22,12 @@
   selinux:
     state: disabled
 
-- name: Reboot machines
-  reboot: 
-    
 - name: Setup kernel param
   sysctl:
     name: "{{ item }}"
     value: '1'
-    sysctl_set: yes
+    sysctl_file: /etc/sysctl.d/10-k8s.conf
     state: present
-    reload: yes
   loop:
     - net.bridge.bridge-nf-call-ip6tables
     - net.bridge.bridge-nf-call-iptables
@@ -43,70 +39,80 @@
     state: stopped
     enabled: no
 
-- name: Install required packages
-  yum:
-    name: "{{ item }}"
-    state: latest
-  loop: "{{ packages }}"
-
-- name: Copy deps pkgs to all hosts
-  copy:
-    src: /tmp/{{ item }}
-    dest: /tmp
-  loop: "{{ pkg_src }}"
-
-- name: Unarchive crio pkg
-  unarchive:
-    src: /tmp/{{ crio_pkg }}
-    dest: /tmp
-    remote_src: yes
-
-- name: Install crio
-  shell: ./install
-  args:
-    chdir: /tmp/cri-o
-
-- name: Daemon reload
-  systemd:
-    daemon_reload: yes
-
-- name: Enable and start cri-o service
-  service:
-    name: crio
-    state: started
-    enabled: yes
-
-- name: Unarchive kubeadm kubectl kubelet
-  unarchive:
-    src: /tmp/{{ item }}
-    dest: /usr/bin
-    remote_src: yes
-  loop:
-    - kubeadm.tar.xz
-    - kubectl.tar.xz
-    - kubelet.tar.xz
-
-- name: Install kubelet.service
-  copy:
-    src: kubelet.service
-    dest: /usr/lib/systemd/system
-
-- name: Ensure kubelet.d dir exists
+- name: mkdir  temp_dir
   file:
-    path: "{{ kubelet_svc_dir }}"
+    path: "{{ sysinit_temp_dir }}"
     state: directory
 
-- name: Install kubeadm.conf
+- name: Install podman on localhost
+  yum:
+    name: 
+      - podman
+      - conntrack-tools
+      - socat
+      - iproute-tc
+      - vim 
+      - bash-completion
+      - crio
+    state: latest
+
+- name: Pull the pkg container image
+  podman_image:
+    name: "{{ sysinit_image_name }}"
+    tag: "{{ sysinit_image_tag }}"
+
+- name: Remove a k8s-pkg container if it already running
+  containers.podman.podman_container:
+    name: "{{ sysinit_container_name }}"
+    state: absent
+
+- name: Run k8s-pkg container
+  containers.podman.podman_container:
+    name: "{{ sysinit_container_name }}"
+    state: present
+    image: "{{ sysinit_image_name }}:{{ sysinit_image_tag }}"
+
+- name: Copy all the packages from pkg container
+  shell: podman cp "{{ sysinit_container_name }}":/root/{{ sysinit_k8s_cmd }} "{{ sysinit_temp_dir }}"
+
+- name: Stop k8s-pkg container
+  containers.podman.podman_container:
+    name: "{{ sysinit_container_name }}"
+    state: stopped
+
+- name: Install k8s command package
+  unarchive:
+    src: "{{ sysinit_temp_dir }}/{{ sysinit_k8s_cmd }}"
+    dest: /usr/bin
+    remote_src: yes
+
+- name: Ensure systemd directory exits
+  file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+
+- name: Install kubelet file
+  copy:
+    src: kubelet.service
+    dest: /etc/systemd/system/
+
+- name: Install kubelet dropin file
   copy:
     src: 10-kubeadm.conf
-    dest: "{{ kubelet_svc_dir }}"
+    dest: /etc/systemd/system/kubelet.service.d
 
-- name: Reload daemon
-  systemd:
-    daemon_reload: yes
+- name: Ensure systemd daemon reloaded
+  systemd: 
+    daemon_reload: true
 
-- name: Enable and start kubelet service
+- name: Ensure crio and kubelet service enabled and started
   service:
-    name: kubelet
+    name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: true
+  loop:
+    - crio
+    - kubelet
+
+- name: Reboot machines
+  reboot:
