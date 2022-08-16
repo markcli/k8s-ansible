@@ -3,3 +3,8 @@
   hosts: all
   roles:
     - sysinit
+
+- name: Init kubernetes cluster
+  hosts: localhost
+  roles:
+    - k8sinit

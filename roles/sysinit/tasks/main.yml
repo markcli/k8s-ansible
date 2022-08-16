@@ -18,6 +18,11 @@
     dest: /etc/modules-load.d/k8s.conf
     force: yes
 
+- name: Ensure br_netfilter module is loaded now
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
 - name: Disable SELINUX
   selinux:
     state: disabled
@@ -55,6 +60,17 @@
       - bash-completion
       - crio
     state: latest
+
+- name: Download crictl package
+  get_url:
+    url: https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.1/crictl-v1.24.1-linux-amd64.tar.gz
+    dest: /tmp
+
+- name: Install crictl 
+  unarchive:
+    src: /tmp/crictl-v1.24.1-linux-amd64.tar.gz
+    dest: /usr/bin
+    remote_src: yes
 
 - name: Pull the pkg container image
   podman_image:
@@ -113,6 +129,3 @@
   loop:
     - crio
     - kubelet
-
-- name: Reboot machines
-  reboot:

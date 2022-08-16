@@ -1,0 +1,5 @@
+---
+# defaults file for k8s
+k8sinit_my_registry: docker.io/marktoday
+k8sinit_kubernetes_version: 1.24.3
+k8sinit_pod_network_cidr: 192.168.0.0/16
