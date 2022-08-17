@@ -49,7 +49,7 @@
     path: "{{ sysinit_temp_dir }}"
     state: directory
 
-- name: Install podman on localhost
+- name: Install required packages
   yum:
     name: 
       - podman
