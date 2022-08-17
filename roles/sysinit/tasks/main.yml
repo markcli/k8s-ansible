@@ -61,17 +61,6 @@
       - crio
     state: latest
 
-- name: Download crictl package
-  get_url:
-    url: https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.1/crictl-v1.24.1-linux-amd64.tar.gz
-    dest: /tmp
-
-- name: Install crictl 
-  unarchive:
-    src: /tmp/crictl-v1.24.1-linux-amd64.tar.gz
-    dest: /usr/bin
-    remote_src: yes
-
 - name: Pull the pkg container image
   podman_image:
     name: "{{ sysinit_image_name }}"
@@ -96,7 +85,7 @@
     name: "{{ sysinit_container_name }}"
     state: stopped
 
-- name: Install k8s command package
+- name: Install kubeadm kubectl kubelet crictl package
   unarchive:
     src: "{{ sysinit_temp_dir }}/{{ sysinit_k8s_cmd }}"
     dest: /usr/bin
