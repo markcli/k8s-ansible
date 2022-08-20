@@ -8,3 +8,5 @@
   hosts: localhost
   roles:
     - k8sinit
+  tags:
+    - k8sinit

@@ -14,14 +14,17 @@
 
 - name: Make sure br_netfilter module is loaded after reboot
   copy:
-    content: br_netfilter
+    src: k8s.conf
     dest: /etc/modules-load.d/k8s.conf
     force: yes
 
 - name: Ensure br_netfilter module is loaded now
   community.general.modprobe:
-    name: br_netfilter
+    name: "{{ item }}"
     state: present
+  loop:
+    - overlay
+    - br_netfilter
 
 - name: Disable SELINUX
   selinux:
