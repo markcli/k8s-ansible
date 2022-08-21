@@ -4,3 +4,4 @@ sysinit_temp_dir: /tmp/k8s-pkgs
 sysinit_image_name: docker.io/marktoday/k8s-pkg
 sysinit_image_tag: v1.24.3@sha256:bce02d6f3c2f4c3fe22c2dd3795543f9b4c77ecb2c0ca4685ada1b081abd2c07
 sysinit_k8s_cmd: k8scmd.tar.xz
+sysinit_crio_pkg: cri-o.amd64.v1.24.2.tar.gz
