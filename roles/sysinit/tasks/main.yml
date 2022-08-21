@@ -12,13 +12,13 @@
     dest: /etc/hosts
     force: yes
 
-- name: Make sure br_netfilter module is loaded after reboot
+- name: Make sure br_netfilter and overlay module is loaded after reboot
   copy:
     src: k8s.conf
     dest: /etc/modules-load.d/k8s.conf
     force: yes
 
-- name: Ensure br_netfilter module is loaded now
+- name: Ensure br_netfilter and overlay module is loaded now
   community.general.modprobe:
     name: "{{ item }}"
     state: present
@@ -61,7 +61,7 @@
       - iproute-tc
       - vim 
       - bash-completion
-      - crio
+      - cri-o
     state: latest
 
 - name: Pull the pkg container image
