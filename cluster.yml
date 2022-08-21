@@ -5,7 +5,7 @@
     - sysinit
 
 - name: Init kubernetes cluster
-  hosts: localhost
+  hosts: master
   roles:
     - k8sinit
   tags:

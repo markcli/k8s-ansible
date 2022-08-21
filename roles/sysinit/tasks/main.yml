@@ -61,7 +61,6 @@
       - iproute-tc
       - vim 
       - bash-completion
-      - cri-o
     state: latest
 
 - name: Pull the pkg container image
@@ -80,8 +79,11 @@
     state: present
     image: "{{ sysinit_image_name }}:{{ sysinit_image_tag }}"
 
-- name: Copy all the packages from pkg container
+- name: Copy k8s packages from pkg container
   shell: podman cp "{{ sysinit_container_name }}":/root/{{ sysinit_k8s_cmd }} "{{ sysinit_temp_dir }}"
+
+- name: Copy cri-o packages from pkg container
+  shell: podman cp "{{ sysinit_container_name }}":/root/{{ sysinit_crio_pkg }} "{{ sysinit_temp_dir }}"
 
 - name: Stop k8s-pkg container
   containers.podman.podman_container:
@@ -93,6 +95,22 @@
     src: "{{ sysinit_temp_dir }}/{{ sysinit_k8s_cmd }}"
     dest: /usr/bin
     remote_src: yes
+
+- name: Unarchive cri-o package
+  unarchive:
+    src: "{{ sysinit_temp_dir }}/{{ sysinit_crio_pkg }}"
+    dest: "{{ sysinit_temp_dir }}"
+    remote_src: yes
+
+- name: Install cri-o
+  shell: ./install
+  args:
+    chdir: "{{ sysinit_temp_dir }}/cri-o"
+
+- name: Ensure crio can pull pause image
+  lineinfile:
+    line: "pause_image = \"registry.mylab.mkz/pause:3.7\""
+    path: /etc/crio/crio.conf
 
 - name: Ensure systemd directory exits
   file:
