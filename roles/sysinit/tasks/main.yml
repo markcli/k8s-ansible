@@ -109,7 +109,7 @@
 
 - name: Ensure crio can pull pause image
   lineinfile:
-    line: "pause_image = \"registry.mylab.mkz/pause:3.7\""
+    line: "pause_image = \"docker.io/marktoay/pause:3.7\""
     path: /etc/crio/crio.conf
 
 - name: Ensure systemd directory exits
