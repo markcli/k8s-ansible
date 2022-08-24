@@ -139,3 +139,6 @@
   loop:
     - crio
     - kubelet
+
+- name: Reboot machine
+  reboot:
