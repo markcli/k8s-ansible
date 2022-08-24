@@ -1,6 +1,6 @@
 ---
 - name: Pull required packages
-  hosts: all
+  hosts: master[0]
   roles:
     - sysinit
 
