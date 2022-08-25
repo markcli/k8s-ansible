@@ -3,13 +3,14 @@
 - name: Pull kubernetes container images
   shell: kubeadm config images pull --image-repository {{ k8sinit_my_registry }} --kubernetes-version {{ k8sinit_kubernetes_version }}
   register: kubeadm_image_pull
-  tags: master0
 
 - debug: 
     var: kubeadm_image_pull.stdout_lines
-  tags: master0
 
 - name: Init first master
   shell: kubeadm init --upload-certs --image-repository {{ k8sinit_my_registry }} --kubernetes-version {{ k8sinit_kubernetes_version }} --pod-network-cidr {{ k8sinit_pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ ansible_facts['hostname'] }} 
   register: kubeadm_init
-  tags: master0
+
+- debug:
+    msg: "{{ kubeadm_init.stdout_lines | regex_search('join') }}"
+

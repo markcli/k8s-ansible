@@ -1,6 +1,6 @@
 ---
 - name: Pull required packages
-  hosts: master[0]
+  hosts: master
   roles:
     - sysinit
 
@@ -8,5 +8,8 @@
   hosts: master[0]
   roles:
     - k8sinit
-  tags:
-    - k8sinit
+
+      #- name: Join other two masters
+      #  hosts: master[1,2]
+      #  roles:
+      #    - joinmaster
