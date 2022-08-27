@@ -8,9 +8,39 @@
     var: kubeadm_image_pull.stdout_lines
 
 - name: Init first master
-  shell: kubeadm init --upload-certs --image-repository {{ k8sinit_my_registry }} --kubernetes-version {{ k8sinit_kubernetes_version }} --pod-network-cidr {{ k8sinit_pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ ansible_facts['hostname'] }} 
+  shell: kubeadm init --upload-certs --image-repository {{ k8sinit_my_registry }} --kubernetes-version {{ k8sinit_kubernetes_version }} --pod-network-cidr {{ k8sinit_pod_network_cidr }} --apiserver-advertise-address {{ ansible_facts['default_ipv4']['address'] }} --control-plane-endpoint {{ ansible_facts['hostname'] }} | tee /tmp/kubeinit.log
   register: kubeadm_init
 
 - debug:
-    msg: "{{ kubeadm_init.stdout_lines | regex_search('join') }}"
+    var: kubeadm_init.stdout_lines 
 
+- name: Get node
+  shell: kubectl get no --kubeconfig /etc/kubernetes/admin.conf | grep -v NAME | wc -l
+  register: node_list
+
+- debug:
+    var: node_list.stdout
+
+- name: Generate master join script
+  shell: tail -22 /tmp/kubeinit.log | grep '\-\-control-plane' -B 2 | tee /tmp/joinmaster.sh
+  changed_when: false
+  when: node_list.stdout == "1"
+  
+- name: Generate worker join script
+  shell: tail -2 /tmp/kubeinit.log | tee /tmp/joinworker.sh
+  changed_when: false
+  when: node_list.stdout == "1"
+
+- name: Fetch joinmaster.sh
+  fetch:
+    src: /tmp/joinmaster.sh
+    dest: /tmp/
+    flat: yes
+  when: node_list.stdout == "1"
+
+- name: Fetch joinworker.sh
+  fetch:
+    src: /tmp/joinworker.sh
+    dest: /tmp/
+    flat: yes
+  when: node_list.stdout == "1"

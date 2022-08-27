@@ -1,0 +1,12 @@
+---
+- name: Reset kubernetes cluster
+  hosts: all
+  gather_facts: no
+  tasks:
+    
+    - name: Run kubeadm reset
+      shell: kubeadm reset -f
+      register: kubereset
+
+    - debug:
+        var: kubereset.stdout_lines

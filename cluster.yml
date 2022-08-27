@@ -9,7 +9,7 @@
   roles:
     - k8sinit
 
-      #- name: Join other two masters
-      #  hosts: master[1,2]
-      #  roles:
-      #    - joinmaster
+- name: Join other two masters
+  hosts: master[1:]
+  roles:
+    - joinmaster

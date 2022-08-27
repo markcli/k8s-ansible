@@ -142,5 +142,9 @@
     - crio
     - kubelet
 
+- name: Setup kubectl command autocompletion
+  shell: kubectl completion bash > /etc/bash_completion.d/kubectl
+  changed_when: false
+
 - name: Reboot machine
   reboot:
