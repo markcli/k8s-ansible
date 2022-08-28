@@ -21,6 +21,17 @@
 - debug:
     var: node_list.stdout
 
+- name: Ensure .kube directory exists
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: Copy admin.conf to .kube dir
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+    remote_src: yes
+
 - name: Generate master join script
   shell: tail -22 /tmp/kubeinit.log | grep '\-\-control-plane' -B 2 | tee /tmp/joinmaster.sh
   changed_when: false

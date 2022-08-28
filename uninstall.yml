@@ -10,3 +10,8 @@
 
     - debug:
         var: kubereset.stdout_lines
+
+    - name: Ensure .kube/config removed
+      file:
+        path: /root/.kube/config
+        state: absent
