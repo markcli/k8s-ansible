@@ -1,7 +1,7 @@
 ---
 # tasks file for joinmaster
 
-- name: Send joinmaster script to othermasters
+- name: Send joinmaster script to other masters
   copy:
     src: /tmp/joinmaster.sh
     dest: /tmp/joinmaster.sh
@@ -11,7 +11,7 @@
   shell: ./joinmaster.sh
   args:
     chdir: /tmp
-  register: joinmaster
-
-- debug:
-    var: joinmaster.stdout_lines
+    #  register: joinmaster
+    #
+    #- debug:
+    #    var: joinmaster.stdout_lines

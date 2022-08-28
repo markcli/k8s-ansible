@@ -1,6 +1,6 @@
 ---
 - name: Pull required packages
-  hosts: master
+  hosts: all
   roles:
     - sysinit
 
@@ -13,3 +13,8 @@
   hosts: master[1:]
   roles:
     - joinmaster
+
+- name: Join workers
+  hosts: worker
+  roles:
+    - joinworker

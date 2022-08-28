@@ -1,0 +1,17 @@
+---
+# tasks file for joinworker
+
+- name: Send joinworker script to workers
+  copy:
+    src: /tmp/joinworker.sh
+    dest: /tmp/joinworker.sh
+    mode: 777
+
+- name: Join other two workers
+  shell: ./joinworker.sh
+  args:
+    chdir: /tmp
+  register: joinworker
+
+- debug:
+    var: joinworker.stdout_lines
